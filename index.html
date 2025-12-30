@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>2025 Appreciation Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            overflow-x: hidden;
+            width: 100%;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .welcome-screen, .card-screen {
+            background: white;
+            border-radius: 20px;
+            padding: 30px 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .decorative-circle {
+            display: none;
+        }
+
+        h1 {
+            font-size: 1.75em;
+            margin-bottom: 15px;
+            color: #1f2937;
+            position: relative;
+            z-index: 1;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 0.9em;
+            color: #6b7280;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+            line-height: 1.4;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        input {
+            width: 100%;
+            max-width: 100%;
+            padding: 16px 20px;
+            font-size: 1em;
+            border: 3px solid #e5e7eb;
+            border-radius: 15px;
+            outline: none;
+            transition: all 0.3s;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 0.95em;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            min-height: 48px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #cardsContainer {
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            border: 4px solid;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .card-green {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+
+        .card-pink {
+            border-color: #ec4899;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+        }
+
+        .card-purple {
+            border-color: #a78bfa;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+        }
+
+        .card-yellow {
+            border-color: #fbbf24;
+            background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+        }
+
+        .card-quote {
+            font-size: 1.2em;
+            line-height: 1.4;
+            color: #1f2937;
+            margin-bottom: 20px;
+            font-weight: 500;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+        }
+
+        .card-author {
+            font-size: 0.9em;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+
+
+        .heart {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 24px;
+            height: 24px;
+            background: #ec4899;
+            transform: rotate(45deg);
+            opacity: 0.6;
+        }
+
+        .heart:before,
+        .heart:after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #ec4899;
+            border-radius: 50%;
+        }
+
+        .heart:before {
+            left: -15px;
+        }
+
+        .heart:after {
+            top: -15px;
+        }
+
+        .flower {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+        }
+
+        .petal {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #f0abfc;
+            border-radius: 50%;
+        }
+
+        .petal:nth-child(1) { top: 0; left: 12px; }
+        .petal:nth-child(2) { top: 12px; left: 24px; }
+        .petal:nth-child(3) { top: 24px; left: 12px; }
+        .petal:nth-child(4) { top: 12px; left: 0; }
+
+        .petal-center {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 16px;
+            height: 16px;
+            background: #fde047;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+            padding: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-download {
+            background: #000000;
+        }
+
+        .btn-download:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Tablet and up (481px+) */
+        @media (min-width: 481px) {
+            body {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1em;
+            }
+
+            .welcome-screen, .card-screen {
+                padding: 40px 20px;
+            }
+
+            .card {
+                padding: 30px 20px;
+            }
+
+            .card-quote {
+                font-size: 1.3em;
+            }
+
+            .card-author {
+                font-size: 1em;
+            }
+
+            button {
+                padding: 16px 32px;
+                font-size: 1em;
+            }
+
+            input {
+                max-width: 400px;
+                padding: 18px 24px;
+                font-size: 1.1em;
+            }
+
+            .actions {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .actions button {
+                width: auto;
+                flex: 1;
+                min-width: 0;
+            }
+        }
+
+        /* Desktop and up (769px+) */
+        @media (min-width: 769px) {
+            body {
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 900px;
+            }
+
+            h1 {
+                font-size: 3em;
+                margin-bottom: 20px;
+            }
+
+            .subtitle {
+                font-size: 1.3em;
+                margin-bottom: 40px;
+            }
+
+            .welcome-screen, .card-screen {
+                padding: 60px 40px;
+                border-radius: 30px;
+            }
+
+            .card {
+                padding: 50px 40px;
+                border-radius: 25px;
+            }
+
+            .card-quote {
+                font-size: 1.8em;
+                line-height: 1.5;
+            }
+
+            .card-author {
+                font-size: 1.2em;
+            }
+
+            button {
+                padding: 18px 48px;
+                font-size: 1.2em;
+                width: auto;
+            }
+
+            input {
+                padding: 18px 24px;
+                font-size: 1.2em;
+            }
+
+            .actions {
+                gap: 15px;
+                padding: 20px;
+            }
+
+            .actions button {
+                flex: none;
+            }
+
+            .decorative-circle {
+                display: block;
+                position: absolute;
+                border-radius: 50%;
+                opacity: 0.15;
+            }
+
+            .circle-1 {
+                width: 200px;
+                height: 200px;
+                background: #10b981;
+                top: -100px;
+                left: -100px;
+            }
+
+            .circle-2 {
+                width: 180px;
+                height: 180px;
+                background: #fbbf24;
+                top: -90px;
+                right: -90px;
+            }
+
+            .circle-3 {
+                width: 220px;
+                height: 220px;
+                background: #ec4899;
+                bottom: -110px;
+                left: -110px;
+            }
+
+            .circle-4 {
+                width: 190px;
+                height: 190px;
+                background: #a78bfa;
+                bottom: -95px;
+                right: -95px;
+            }
+
+            .heart {
+                top: 20px;
+                right: 30px;
+                width: 30px;
+                height: 30px;
+            }
+
+            .heart:before,
+            .heart:after {
+                width: 30px;
+                height: 30px;
+            }
+
+            .flower {
+                bottom: 30px;
+                left: 40px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .petal {
+                width: 20px;
+                height: 20px;
+            }
+
+            .petal:nth-child(1) { top: 0; left: 15px; }
+            .petal:nth-child(2) { top: 15px; left: 30px; }
+            .petal:nth-child(3) { top: 30px; left: 15px; }
+            .petal:nth-child(4) { top: 15px; left: 0; }
+
+            .petal-center {
+                top: 15px;
+                left: 15px;
+                width: 20px;
+                height: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="welcomeScreen" class="welcome-screen">
+            <div class="decorative-circle circle-1"></div>
+            <div class="decorative-circle circle-2"></div>
+            <div class="decorative-circle circle-3"></div>
+            <div class="decorative-circle circle-4"></div>
+            
+            <h1>✨ 2025 Appreciation ✨</h1>
+            <p class="subtitle">You made it through another year! Let's celebrate YOU.</p>
+            
+            <div class="input-group">
+                <input type="text" id="nameInput" placeholder="Enter your name..." />
+            </div>
+            
+            <button onclick="generateCards()">Generate My Cards</button>
+        </div>
+
+        <div id="cardScreen" class="card-screen hidden">
+            <h1>Your 2025 Appreciation Card</h1>
+            <p class="subtitle">A special reminder of your amazing year! ❤️</p>
+            
+            <div id="cardsContainer"></div>
+        </div>
+        
+        <div id="cardActions" class="actions hidden">
+            <button onclick="generateNewCard()">Generate New Card</button>
+            <button class="btn-download" onclick="downloadImage()">Download Image</button>
+            <button class="btn-secondary" onclick="showWelcome()">Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        const messages = [
+            {
+                template: '"Where does the energy for {name}\'s achievements come from?"',
+                author: 'From within, always',
+                color: 'green'
+            },
+            {
+                template: '{name}, you navigated 2025 with grace, resilience, and determination.',
+                author: 'You should be proud',
+                color: 'pink'
+            },
+            {
+                template: '{name} is built as a person who enables special moments.',
+                subtext: 'You went from surviving to thriving this year.',
+                color: 'purple',
+                showFlower: true
+            },
+            {
+                template: 'Every challenge {name} faced in 2025 became a stepping stone.',
+                author: 'Growth looks good on you',
+                color: 'yellow'
+            },
+            {
+                template: '{name} showed up, even when it was hard. That takes courage.',
+                author: 'Never underestimate your strength',
+                color: 'green'
+            },
+            {
+                template: 'In 2025, {name} proved that consistency beats perfection every time.',
+                author: 'Keep going, you\'re doing great',
+                color: 'pink',
+                showCat: true
+            }
+        ];
+
+        let currentName = '';
+
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function createCard(msg, name) {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+
+            const card = document.createElement('div');
+            card.className = `card card-${msg.color}`;
+            
+            let content = `<div class="card-quote">${msg.template.replace('{name}', name)}</div>`;
+            
+            if (msg.subtext) {
+                content += `<div class="card-quote" style="font-size: 1.3em; margin-top: 20px;">${msg.subtext}</div>`;
+            }
+            
+            if (msg.author) {
+                content += `<div class="card-author">- ${msg.author}</div>`;
+            }
+
+            if (msg.showFlower) {
+                content += `
+                    <div class="flower">
+                        <div class="petal"></div>
+                        <div class="petal"></div>
+                        <div class="petal"></div>
+                        <div class="petal"></div>
+                        <div class="petal-center"></div>
+                    </div>
+                `;
+            }
+
+            card.innerHTML = content;
+            container.appendChild(card);
+        }
+
+        function generateCards() {
+            const name = document.getElementById('nameInput').value.trim();
+            
+            if (!name) {
+                alert('Please enter your name!');
+                return;
+            }
+
+            currentName = name;
+            generateNewCard();
+        }
+
+        function generateNewCard() {
+            if (!currentName) {
+                // If no name stored, get it from input or show welcome
+                const name = document.getElementById('nameInput').value.trim();
+                if (!name) {
+                    showWelcome();
+                    return;
+                }
+                currentName = name;
+            }
+
+            // Shuffle messages and pick the first one
+            const shuffled = shuffleArray(messages);
+            const randomCard = shuffled[0];
+
+            createCard(randomCard, currentName);
+
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('cardScreen').classList.remove('hidden');
+            document.getElementById('cardActions').classList.remove('hidden');
+        }
+
+        async function downloadImage() {
+            const cardScreen = document.getElementById('cardScreen');
+            if (!cardScreen || cardScreen.classList.contains('hidden')) {
+                alert('No card to download! Please generate a card first.');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const downloadButton = event.target;
+                const originalText = downloadButton.textContent;
+                downloadButton.textContent = 'Generating image...';
+                downloadButton.disabled = true;
+
+                // Capture the entire white box (card screen) as an image
+                const canvas = await html2canvas(cardScreen, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    logging: false,
+                    useCORS: true,
+                    width: cardScreen.offsetWidth,
+                    height: cardScreen.offsetHeight
+                });
+
+                // Download the image
+                const url = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `appreciation-card-2025-${Date.now()}.png`;
+                link.href = url;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Restore button
+                downloadButton.textContent = originalText;
+                downloadButton.disabled = false;
+            } catch (error) {
+                console.error('Error capturing card:', error);
+                alert('Error generating image. Please try again.');
+                const downloadButton = event.target;
+                downloadButton.textContent = 'Download Image';
+                downloadButton.disabled = false;
+            }
+        }
+
+        function showWelcome() {
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('cardScreen').classList.add('hidden');
+            document.getElementById('cardActions').classList.add('hidden');
+            document.getElementById('nameInput').value = '';
+            currentName = '';
+        }
+
+        document.getElementById('nameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateCards();
+            }
+        });
+    </script>
+</body>
+</html>

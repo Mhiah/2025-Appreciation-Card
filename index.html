@@ -212,12 +212,16 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
             hyphens: auto;
+            text-transform: none;
+            font-variant: normal;
         }
 
         .card-author {
             font-size: 0.9em;
             color: #6b7280;
             font-style: italic;
+            text-transform: none;
+            font-variant: normal;
         }
 
 
@@ -554,37 +558,33 @@
         const messages = [
             {
                 template: '"Where does the energy for {name}\'s achievements come from?"',
-                author: 'From within, always',
-                color: 'green'
+                author: 'From within, always'
             },
             {
                 template: '{name}, you navigated 2025 with grace, resilience, and determination.',
-                author: 'You should be proud',
-                color: 'pink'
+                author: 'You should be proud'
             },
             {
                 template: '{name} is built as a person who enables special moments.',
                 subtext: 'You went from surviving to thriving this year.',
-                color: 'purple',
                 showFlower: true
             },
             {
                 template: 'Every challenge {name} faced in 2025 became a stepping stone.',
-                author: 'Growth looks good on you',
-                color: 'yellow'
+                author: 'Growth looks good on you'
             },
             {
                 template: '{name} showed up, even when it was hard. That takes courage.',
-                author: 'Never underestimate your strength',
-                color: 'green'
+                author: 'Never underestimate your strength'
             },
             {
                 template: 'In 2025, {name} proved that consistency beats perfection every time.',
                 author: 'Keep going, you\'re doing great',
-                color: 'pink',
                 showCat: true
             }
         ];
+
+        const cardColors = ['green', 'pink', 'purple', 'yellow'];
 
         let currentName = '';
 
@@ -598,21 +598,55 @@
             return shuffled;
         }
 
-        function createCard(msg, name) {
+        // Function to ensure proper capitalization
+        function capitalizeText(text) {
+            if (!text) return text;
+            
+            // Ensure first letter is capitalized
+            let result = text.trim();
+            if (result.length > 0) {
+                result = result.charAt(0).toUpperCase() + result.slice(1);
+            }
+            
+            // Capitalize after sentence endings (. ! ?)
+            result = result.replace(/([.!?]\s+)([a-z])/g, (match, p1, p2) => {
+                return p1 + p2.toUpperCase();
+            });
+            
+            return result;
+        }
+
+        // Function to capitalize name properly (first letter uppercase, rest as entered)
+        function capitalizeName(name) {
+            if (!name) return name;
+            // Capitalize first letter, keep rest as user entered
+            return name.charAt(0).toUpperCase() + name.slice(1);
+        }
+
+        function createCard(msg, name, color) {
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
 
             const card = document.createElement('div');
-            card.className = `card card-${msg.color}`;
+            card.className = `card card-${color}`;
             
-            let content = `<div class="card-quote">${msg.template.replace('{name}', name)}</div>`;
+            // Capitalize the name properly
+            const capitalizedName = capitalizeName(name);
+            
+            // Replace name and capitalize the text
+            let quoteText = msg.template.replace('{name}', capitalizedName);
+            quoteText = capitalizeText(quoteText);
+            
+            let content = `<div class="card-quote">${quoteText}</div>`;
             
             if (msg.subtext) {
-                content += `<div class="card-quote" style="font-size: 1.3em; margin-top: 20px;">${msg.subtext}</div>`;
+                const subtext = capitalizeText(msg.subtext);
+                content += `<div class="card-quote" style="font-size: 1.3em; margin-top: 20px;">${subtext}</div>`;
             }
             
             if (msg.author) {
-                content += `<div class="card-author">- ${msg.author}</div>`;
+                const author = capitalizeText(msg.author);
+                content += `<div class="card-author">- ${author}</div>`;
             }
 
             if (msg.showFlower) {
@@ -654,11 +688,17 @@
                 currentName = name;
             }
 
-            // Shuffle messages and pick the first one
-            const shuffled = shuffleArray(messages);
-            const randomCard = shuffled[0];
+            // Shuffle messages and pick a random one
+            const shuffledMessages = shuffleArray(messages);
+            const randomMessageIndex = Math.floor(Math.random() * shuffledMessages.length);
+            const randomCard = shuffledMessages[randomMessageIndex];
 
-            createCard(randomCard, currentName);
+            // Shuffle colors and pick a random color
+            const shuffledColors = shuffleArray(cardColors);
+            const randomColorIndex = Math.floor(Math.random() * shuffledColors.length);
+            const randomColor = shuffledColors[randomColorIndex];
+
+            createCard(randomCard, currentName, randomColor);
 
             document.getElementById('welcomeScreen').classList.add('hidden');
             document.getElementById('cardScreen').classList.remove('hidden');
@@ -686,21 +726,70 @@
                     logging: false,
                     useCORS: true,
                     width: cardScreen.offsetWidth,
-                    height: cardScreen.offsetHeight
+                    height: cardScreen.offsetHeight,
+                    allowTaint: true,
+                    foreignObjectRendering: false
                 });
 
-                // Download the image
-                const url = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.download = `appreciation-card-2025-${Date.now()}.png`;
-                link.href = url;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                // Convert canvas to blob for better Android support
+                canvas.toBlob(async (blob) => {
+                    try {
+                        const fileName = `appreciation-card-2025-${Date.now()}.png`;
+                        
+                        // Check if Web Share API is available (good for Android)
+                        if (navigator.share && navigator.canShare && /Android/i.test(navigator.userAgent)) {
+                            const file = new File([blob], fileName, { type: 'image/png' });
+                            if (navigator.canShare({ files: [file] })) {
+                                await navigator.share({
+                                    files: [file],
+                                    title: '2025 Appreciation Card',
+                                    text: 'Check out my appreciation card!'
+                                });
+                                downloadButton.textContent = originalText;
+                                downloadButton.disabled = false;
+                                return;
+                            }
+                        }
 
-                // Restore button
-                downloadButton.textContent = originalText;
-                downloadButton.disabled = false;
+                        // Fallback: Use blob URL for download (works better on Android)
+                        const blobUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = fileName;
+                        link.href = blobUrl;
+                        link.style.display = 'none';
+                        
+                        // For Android, we need to append and click
+                        document.body.appendChild(link);
+                        link.click();
+                        
+                        // Clean up after a delay
+                        setTimeout(() => {
+                            document.body.removeChild(link);
+                            URL.revokeObjectURL(blobUrl);
+                        }, 100);
+
+                        // Restore button
+                        downloadButton.textContent = originalText;
+                        downloadButton.disabled = false;
+                    } catch (shareError) {
+                        // If share fails, try direct download
+                        console.log('Share failed, using direct download:', shareError);
+                        const blobUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.download = `appreciation-card-2025-${Date.now()}.png`;
+                        link.href = blobUrl;
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        link.click();
+                        setTimeout(() => {
+                            document.body.removeChild(link);
+                            URL.revokeObjectURL(blobUrl);
+                        }, 100);
+                        
+                        downloadButton.textContent = originalText;
+                        downloadButton.disabled = false;
+                    }
+                }, 'image/png', 0.95);
             } catch (error) {
                 console.error('Error capturing card:', error);
                 alert('Error generating image. Please try again.');
